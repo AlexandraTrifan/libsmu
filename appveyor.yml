@@ -150,8 +150,7 @@ build_script:
 
   - mkdir c:\projects\libsmu\mingw-32
   - cd c:\projects\libsmu\mingw-32
-  - C:\msys64\usr\bin\bash -lc "cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% -DCMAKE_SYSTEM_PREFIX_PATH=C: -DLIBUSB_LIBRARIES=c/libusb-mingw/MinGW32/static/libusb-1.0.a -DLIBUSB_INCLUDE_DIRS="c/libusb-mingw/include/libusb-1.0" -DBUILD_PYTHON=OFF .."
-  - C:\msys64\usr\bin\bash -lc "cmake --build . --config %CONFIGURATION%"
+  - C:\msys64\usr\bin\bash -lc "cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% -DCMAKE_SYSTEM_PREFIX_PATH=C: -DLIBUSB_LIBRARIES=c/libusb-mingw/MinGW32/static/libusb-1.0.a -DLIBUSB_INCLUDE_DIRS="c/libusb-mingw/include/libusb-1.0" -DBUILD_PYTHON=OFF .. && make"
 
   # create libsmu zipfile
   - mkdir c:\libsmu-MinGW
