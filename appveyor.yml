@@ -144,7 +144,6 @@ build_script:
   - set OPT_PATH=C:\msys64\mingw32\bin;C:\msys64\mingw64\bin;
   - set PATH=%OPT_PATH%%PATH%
   - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syu"
-  - C:\msys64\usr\bin\bash -lc "pacman install libtool autoconf automake-wrapper gcc toolchain"
   - C:\msys64\usr\bin\bash -lc "pacman -Rs --noconfirm mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-fortran mingw-w64-i686-gcc-libgfortran mingw-w64-i686-gcc-objc"
   - C:\msys64\usr\bin\bash -lc "rm /mingw32/etc/gdbinit"
   - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Sy  mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-pkg-config"
