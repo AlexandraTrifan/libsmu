@@ -25,6 +25,7 @@ install:
   - set PATH=%PATH%;"C:\Program Files (x86)\Inno Setup 5"
 
 build_script:
+  #MSVC build
   # build our own libusb version with hotplug support until upstream merges related patches
   - ps: pushd "C:\libusb"
   - git checkout hotplug
@@ -135,6 +136,52 @@ build_script:
   - iscc C:\projects\libsmu\dist\libsmu-x64.iss
   - appveyor PushArtifact C:\libsmu-setup-x86.exe
   - appveyor PushArtifact C:\libsmu-setup-x64.exe
+
+
+  # MinGW build
+   # build our own libusb version with hotplug support until upstream merges related patches
+  - set OPT_PATH=C:\msys64\mingw32\bin;C:\msys64\mingw64\bin;
+  - set PATH=%OPT_PATH%%PATH%
+  - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syu"
+  - pacman install libtool autoconf automake-wrapper gcc toolchain
+  - C:\msys64\usr\bin\bash -lc "pacman -Rs --noconfirm mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-fortran mingw-w64-i686-gcc-libgfortran mingw-w64-i686-gcc-objc"
+  - C:\msys64\usr\bin\bash -lc "rm /mingw32/etc/gdbinit"
+  - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Sy  mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-pkg-config"
+    - if "%COMPILER%"=="mingw" (C:\msys64\usr\bin\bash -lc "cmake -G '%GENERATOR%' -DGIT_EXECUTABLE=C:/Program\ Files/Git/cmd/git.exe -DCMAKE_BUILD_TYPE=%configuration% -DCMAKE_INSTALL_PREFIX=/mingw32 -DCMAKE_C_COMPILER:FILEPATH=/mingw32/bin/i686-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=/mingw32/bin/i686-w64-mingw32-g++.exe -DCSHARP_BINDINGS:BOOL=OFF -DPKG_CONFIG_EXECUTABLE:FILEPATH=/mingw32/bin/pkg-config.exe -DENABLE_IPV6:BOOL=OFF -DPYTHON_BINDINGS:BOOL=OFF /c/projects/libiio && make -j3")
+  - ps: pushd "C:\libusb"
+  - git checkout hotplug
+  - C:\msys64\usr\bin\bash -lc "./autogen.sh && ./configure && make"
+  - ps: popd
+
+  - mkdir c:\projects\libsmu\mingw-32
+  - cd c:\projects\libsmu\mingw-32
+  - C:\msys64\usr\bin\bash -lc "cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% -DCMAKE_SYSTEM_PREFIX_PATH=C: -DLIBUSB_LIBRARIES=c/libusb/libusb-1.0.dll.a -DLIBUSB_INCLUDE_DIRS="c/libusb/libusb" -DBUILD_PYTHON=OFF .."
+  - C:\msys64\usr\bin\bash -lc "cmake --build . --config %CONFIGURATION%"
+
+  - mkdir c:\projects\libsmu\mingw-64
+  - cd c:\projects\libsmu\mingw-64
+  - C:\msys64\usr\bin\bash -lc "cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% -DCMAKE_SYSTEM_PREFIX_PATH=C: -DLIBUSB_LIBRARIES=c/libusb/x64/%CONFIGURATION%/lib/libusb-1.0.dll.a -DLIBUSB_INCLUDE_DIRS=c/libusb/libusb -DBUILD_PYTHON=OFF .."
+  - C:\msys64\usr\bin\bash -lc "cmake --build . --config %CONFIGURATION%"
+
+  # create libsmu zipfile
+  - mkdir c:\libsmu-MinGW
+  - mkdir c:\libsmu-MinGW\drivers
+  - mkdir c:\libsmu-MinGW\32
+  - mkdir c:\libsmu-MinGW\64
+  - copy ..\src\libsmu.hpp c:\libsmu-MinGW
+  - copy ..\dist\m1k-winusb.inf c:\libsmu-MinGW\drivers
+  - copy ..\dist\m1k-winusbx64.cat c:\libsmu-MinGW\drivers
+  - copy ..\dist\m1k-winusbx86.cat c:\libsmu-MinGW\drivers
+  - copy ..\mingw-32\src\%CONFIGURATION%\libsmu.* c:\libsmu-MinGW\32
+  - copy ..\mingw-64\src\%CONFIGURATION%\libsmu.* c:\libsmu-MinGW\64
+  - copy ..\mingw-32\src\cli\%CONFIGURATION%\smu.exe c:\libsmu-MinGW\32
+  - copy ..\mingw-64\src\cli\%CONFIGURATION%\smu.exe c:\libsmu-MinGW\64
+  - copy c:\libusb\libusb-1.0.dll.a c:\libsmu-MinGW\32
+  - copy c:\libusb\x64\%CONFIGURATION%\lib\libusb-1.0.dll.a c:\libsmu-MinGW\64
+  - copy c:\libusb\libusb-1.0.dll c:\libsmu-MinGW\32
+  - copy c:\libusb\x64\%CONFIGURATION%\lib\libusb-1.0.dll c:\libsmu-MinGW\64
+  - 7z a "c:\libsmu-MinGW.zip" c:\libsmu-MinGW
+  - appveyor PushArtifact c:\libsmu-MinGW.zip
 
 cache:
   # cache innosetup download
