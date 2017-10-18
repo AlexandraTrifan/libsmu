@@ -1,5 +1,7 @@
 os: Visual Studio 2015
 clone_depth: 1
+init:
+    - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 configuration:
   - Release
@@ -150,7 +152,7 @@ build_script:
 
   - mkdir c:\projects\libsmu\mingw-32
   - cd c:\projects\libsmu\mingw-32
-  - C:\msys64\usr\bin\bash -lc "cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% -DCMAKE_SYSTEM_PREFIX_PATH=C: -DLIBUSB_LIBRARIES=c/libusb-mingw/MinGW32/static/libusb-1.0.a -DLIBUSB_INCLUDE_DIRS=c/libusb-mingw/include/libusb-1.0 -DBUILD_PYTHON=OFF .. && make"
+  - C:\msys64\usr\bin\bash -lc "cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% -DLIBUSB_LIBRARIES=c/libusb-mingw/MinGW32/static/libusb-1.0.a -DLIBUSB_INCLUDE_DIRS=c/libusb-mingw/include/libusb-1.0 -DBUILD_PYTHON=OFF .. && make"
 
   # create libsmu zipfile
   - mkdir c:\libsmu-MinGW
@@ -168,3 +170,5 @@ build_script:
 cache:
   # cache innosetup download
   - C:\Users\appveyor\AppData\Local\Temp\chocolatey
+on_finish:
+    - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
