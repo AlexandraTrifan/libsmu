@@ -152,7 +152,7 @@ build_script:
 
   - mkdir c:\projects\libsmu\mingw-32
   - cd c:\projects\libsmu\mingw-32
-  - cmake -G "MSYS Makefiles" \
+  - cmake -G "Unix Makefiles" \
     -DLIBUSB_LIBRARIES="C:\\libusb-mingw\\MinGW32\\static\\libusb-1.0.a" \
     -DLIBUSB_INCLUDE_DIRS="C:\\libusb-mingw\\include\\libusb-1.0" \
     -DBoost_USE_STATIC_LIBS=ON \
@@ -161,6 +161,8 @@ build_script:
     -DBUILD_TESTS=OFF \
     -DBOOST_ROOT="C:\\Libraries\\boost_1_62_0" \
     -DBUILD_PYTHON=OFF \
+    -DCMAKE_C_COMPILER:FILEPATH=/mingw32/bin/i686-w64-mingw32-gcc.exe \
+    -DCMAKE_CXX_COMPILER:FILEPATH=/mingw32/bin/i686-w64-mingw32-g++.exe \
     ..
   - mingw32-make -j8
   
