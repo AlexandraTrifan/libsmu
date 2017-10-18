@@ -23,7 +23,8 @@ install:
       } Else {
         $env:PYTHON_DEBUG=""
       }
-
+  - cd C:\projects\libsmu
+  - git checkout rework
   # libusb patched for windows hotplug support
   - git clone https://github.com/analogdevicesinc/libusb.git "C:\libusb"
   # install innosetup for creating installers
