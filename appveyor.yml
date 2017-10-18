@@ -29,7 +29,7 @@ install:
 build_script:
   #MSVC build
   # build our own libusb version with hotplug support until upstream merges related patches
-  - ps: pushd "C:\libusb"
+  #- ps: pushd "C:\libusb"
   #- git checkout hotplug
   #- msbuild msvc\libusb_2015.sln /p:Platform=Win32 /p:Configuration=%CONFIGURATION% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   #- msbuild msvc\libusb_2015.sln /p:Platform=x64 /p:Configuration=%CONFIGURATION% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
