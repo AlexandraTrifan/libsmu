@@ -30,114 +30,114 @@ build_script:
   #MSVC build
   # build our own libusb version with hotplug support until upstream merges related patches
   - ps: pushd "C:\libusb"
-  - git checkout hotplug
-  - msbuild msvc\libusb_2015.sln /p:Platform=Win32 /p:Configuration=%CONFIGURATION% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-  - msbuild msvc\libusb_2015.sln /p:Platform=x64 /p:Configuration=%CONFIGURATION% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-  - ps: popd
+  #- git checkout hotplug
+  #- msbuild msvc\libusb_2015.sln /p:Platform=Win32 /p:Configuration=%CONFIGURATION% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  #- msbuild msvc\libusb_2015.sln /p:Platform=x64 /p:Configuration=%CONFIGURATION% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  #- ps: popd
 
-  - mkdir c:\projects\libsmu\32
-  - cd c:\projects\libsmu\32
-  - cmake -G "Visual Studio 14 2015" \
-    -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% \
-    -DCMAKE_SYSTEM_PREFIX_PATH="C:" \
-    -DLIBUSB_LIBRARIES="C:\\libusb\\Win32\\%CONFIGURATION%\\lib\\libusb-1.0.lib" \
-    -DLIBUSB_INCLUDE_DIRS="C:\\libusb\\libusb" \
-    -DBUILD_PYTHON=OFF \
-    ..
-  - cmake --build . --config %CONFIGURATION%
+  #- mkdir c:\projects\libsmu\32
+  #- cd c:\projects\libsmu\32
+  #- cmake -G "Visual Studio 14 2015" \
+   # -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% \
+    #-DCMAKE_SYSTEM_PREFIX_PATH="C:" \
+    #-DLIBUSB_LIBRARIES="C:\\libusb\\Win32\\%CONFIGURATION%\\lib\\libusb-1.0.lib" \
+    #-DLIBUSB_INCLUDE_DIRS="C:\\libusb\\libusb" \
+    #-DBUILD_PYTHON=OFF \
+    #..
+  #- cmake --build . --config %CONFIGURATION%
 
-  - mkdir c:\projects\libsmu\64
-  - cd c:\projects\libsmu\64
-  - cmake -G "Visual Studio 14 2015 Win64" \
-    -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% \
-    -DCMAKE_SYSTEM_PREFIX_PATH="C:" \
-    -DLIBUSB_LIBRARIES="C:\\libusb\\x64\\%CONFIGURATION%\\lib\\libusb-1.0.lib" \
-    -DLIBUSB_INCLUDE_DIRS="C:\\libusb\\libusb" \
-    -DBUILD_PYTHON=OFF \
-    ..
-  - cmake --build . --config %CONFIGURATION%
+  #- mkdir c:\projects\libsmu\64
+  #- cd c:\projects\libsmu\64
+  #- cmake -G "Visual Studio 14 2015 Win64" \
+   # -DCMAKE_BUILD_TYPE:STRING=%CONFIGURATION% \
+    #-DCMAKE_SYSTEM_PREFIX_PATH="C:" \
+    #-DLIBUSB_LIBRARIES="C:\\libusb\\x64\\%CONFIGURATION%\\lib\\libusb-1.0.lib" \
+    #-DLIBUSB_INCLUDE_DIRS="C:\\libusb\\libusb" \
+    #-DBUILD_PYTHON=OFF \
+    #..
+  #- cmake --build . --config %CONFIGURATION%
 
   # create libsmu zipfile
-  - mkdir c:\libsmu
-  - mkdir c:\libsmu\drivers
-  - mkdir c:\libsmu\32
-  - mkdir c:\libsmu\64
-  - copy ..\src\libsmu.hpp c:\libsmu
-  - copy ..\dist\m1k-winusb.inf c:\libsmu\drivers
-  - copy ..\dist\m1k-winusbx64.cat c:\libsmu\drivers
-  - copy ..\dist\m1k-winusbx86.cat c:\libsmu\drivers
-  - copy ..\32\src\%CONFIGURATION%\libsmu.* c:\libsmu\32
-  - copy ..\64\src\%CONFIGURATION%\libsmu.* c:\libsmu\64
-  - copy ..\32\src\cli\%CONFIGURATION%\smu.exe c:\libsmu\32
-  - copy ..\64\src\cli\%CONFIGURATION%\smu.exe c:\libsmu\64
-  - copy "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\redist\\x86\\Microsoft.VC140.CRT\\msvcp140.dll"; c:\libsmu\32
-  - copy "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\redist\\x86\\Microsoft.VC140.CRT\\vcruntime140.dll"; c:\libsmu\32
-  - copy "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\redist\\x64\\Microsoft.VC140.CRT\\msvcp140.dll"; c:\libsmu\64
-  - copy "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\redist\\x64\\Microsoft.VC140.CRT\\vcruntime140.dll"; c:\libsmu\64
-  - 7z a "c:\libsmu.zip" c:\libsmu
-  - appveyor PushArtifact c:\libsmu.zip
+  #- mkdir c:\libsmu
+  #- mkdir c:\libsmu\drivers
+  #- mkdir c:\libsmu\32
+  #- mkdir c:\libsmu\64
+  #- copy ..\src\libsmu.hpp c:\libsmu
+  #- copy ..\dist\m1k-winusb.inf c:\libsmu\drivers
+  #- copy ..\dist\m1k-winusbx64.cat c:\libsmu\drivers
+  #- copy ..\dist\m1k-winusbx86.cat c:\libsmu\drivers
+  #- copy ..\32\src\%CONFIGURATION%\libsmu.* c:\libsmu\32
+  #- copy ..\64\src\%CONFIGURATION%\libsmu.* c:\libsmu\64
+  #- copy ..\32\src\cli\%CONFIGURATION%\smu.exe c:\libsmu\32
+  #- copy ..\64\src\cli\%CONFIGURATION%\smu.exe c:\libsmu\64
+  #- copy "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\redist\\x86\\Microsoft.VC140.CRT\\msvcp140.dll"; c:\libsmu\32
+  #- copy "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\redist\\x86\\Microsoft.VC140.CRT\\vcruntime140.dll"; c:\libsmu\32
+  #- copy "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\redist\\x64\\Microsoft.VC140.CRT\\msvcp140.dll"; c:\libsmu\64
+  #- copy "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\redist\\x64\\Microsoft.VC140.CRT\\vcruntime140.dll"; c:\libsmu\64
+  #- 7z a "c:\libsmu.zip" c:\libsmu
+  #- appveyor PushArtifact c:\libsmu.zip
 
   ## build 32 bit python bindings
   # add python dirs to PATH
-  - set PATH=C:\\Python27;C:\\Python27\\Scripts;%PATH%
+  #- set PATH=C:\\Python27;C:\\Python27\\Scripts;%PATH%
   # check we're using the right python version and arch
-  - "python --version"
-  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+  #- "python --version"
+  #- "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
   # update pip to keep it from complaining
-  - "pip install --disable-pip-version-check --user --upgrade pip"
+  #- "pip install --disable-pip-version-check --user --upgrade pip"
   # wheel needs to be installed in order to build binary wheels for pysmu
-  - "pip install wheel"
+  #- "pip install wheel"
 
   # build python dist files
-  - ps: pushd C:\projects\libsmu\bindings\python
-  - set DISTUTILS_USE_SDK=1
-  - set MSSdk=1
-  - set PATH=C:\Program Files (x86)\MSBuild\14.0\bin;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC;%PATH%
+  #- ps: pushd C:\projects\libsmu\bindings\python
+  #- set DISTUTILS_USE_SDK=1
+  #- set MSSdk=1
+  #- set PATH=C:\Program Files (x86)\MSBuild\14.0\bin;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC;%PATH%
 
-  - "vcvarsall.bat x86"
-  - "python setup.py build_ext %PYTHON_DEBUG% --compiler=msvc -L ../../32/src/%CONFIGURATION% -I C:\\libusb\\libusb"
-  - "python setup.py build %PYTHON_DEBUG%"
-  - "python setup.py bdist_wheel --skip-build"
-  - "python setup.py bdist --skip-build --format zip"
-  - "python setup.py bdist --skip-build --format msi"
+  #- "vcvarsall.bat x86"
+  #- "python setup.py build_ext %PYTHON_DEBUG% --compiler=msvc -L ../../32/src/%CONFIGURATION% -I C:\\libusb\\libusb"
+  #- "python setup.py build %PYTHON_DEBUG%"
+  #- "python setup.py bdist_wheel --skip-build"
+  #- "python setup.py bdist --skip-build --format zip"
+  #- "python setup.py bdist --skip-build --format msi"
 
   ## build 64 bit python bindings
   # add python dirs to PATH
-  - set PATH=C:\\Python27-x64;C:\\Python27-x64\\Scripts;%PATH%
+  #- set PATH=C:\\Python27-x64;C:\\Python27-x64\\Scripts;%PATH%
   # check we're using the right python version and arch
-  - "python --version"
-  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+  #- "python --version"
+  #- "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
   # update pip to keep it from complaining
-  - "pip install --disable-pip-version-check --user --upgrade pip"
+  #- "pip install --disable-pip-version-check --user --upgrade pip"
   # wheel needs to be installed in order to build binary wheels for pysmu
-  - "pip install wheel"
+  #- "pip install wheel"
 
-  - "vcvarsall.bat x64"
-  - "python setup.py build_ext %PYTHON_DEBUG% --compiler=msvc -L ../../64/src/%CONFIGURATION% -I C:\\libusb\\libusb"
-  - "python setup.py build %PYTHON_DEBUG%"
-  - "python setup.py bdist_wheel --skip-build"
-  - "python setup.py bdist --skip-build --format zip"
-  - "python setup.py bdist --skip-build --format msi"
-  - "python setup.py sdist"
+  #- "vcvarsall.bat x64"
+  #- "python setup.py build_ext %PYTHON_DEBUG% --compiler=msvc -L ../../64/src/%CONFIGURATION% -I C:\\libusb\\libusb"
+  #- "python setup.py build %PYTHON_DEBUG%"
+  #- "python setup.py bdist_wheel --skip-build"
+  #- "python setup.py bdist --skip-build --format zip"
+  #- "python setup.py bdist --skip-build --format msi"
+  #- "python setup.py sdist"
 
   # push all dist files as artifacts
-  - ps: Get-ChildItem dist/.\* | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  #- ps: Get-ChildItem dist/.\* | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
   # copy python binding MSIs for installer
-  - mkdir c:\libsmu-python
-  - ps: Copy-Item dist\pysmu-*amd64-py*.msi c:\libsmu-python\pysmu-amd64.msi
-  - ps: Copy-Item dist\pysmu-*win32-py*.msi c:\libsmu-python\pysmu-win32.msi
-  - ps: popd
+  #- mkdir c:\libsmu-python
+  #- ps: Copy-Item dist\pysmu-*amd64-py*.msi c:\libsmu-python\pysmu-amd64.msi
+  #- ps: Copy-Item dist\pysmu-*win32-py*.msi c:\libsmu-python\pysmu-win32.msi
+  #- ps: popd
 
   # create libsmu installers
-  - copy C:\projects\libsmu\32\dist\libsmu-x86.iss C:\projects\libsmu\dist\libsmu-x86.iss
-  - copy C:\projects\libsmu\32\dist\libsmu-x64.iss C:\projects\libsmu\dist\libsmu-x64.iss
-  - iscc C:\projects\libsmu\dist\libsmu-x86.iss
-  - iscc C:\projects\libsmu\dist\libsmu-x64.iss
-  - appveyor PushArtifact C:\libsmu-setup-x86.exe
-  - appveyor PushArtifact C:\libsmu-setup-x64.exe
+  #- copy C:\projects\libsmu\32\dist\libsmu-x86.iss C:\projects\libsmu\dist\libsmu-x86.iss
+  #- copy C:\projects\libsmu\32\dist\libsmu-x64.iss C:\projects\libsmu\dist\libsmu-x64.iss
+  #- iscc C:\projects\libsmu\dist\libsmu-x86.iss
+  #- iscc C:\projects\libsmu\dist\libsmu-x64.iss
+  #- appveyor PushArtifact C:\libsmu-setup-x86.exe
+  #- appveyor PushArtifact C:\libsmu-setup-x64.exe
 
 
   # MinGW build
@@ -152,20 +152,8 @@ build_script:
 
   - mkdir c:\projects\libsmu\mingw-32
   - cd c:\projects\libsmu\mingw-32
-  - cmake -G "Unix Makefiles" \
-    -DCMAKE_INSTALL_PREFIX="C:\\msys64\\mingw32" \
-    -DCMAKE_C_COMPILER:FILEPATH="C:\\msys64\\mingw32\\bin\\i686-w64-mingw32-gcc.exe" \
-    -DCMAKE_CXX_COMPILER:FILEPATH="C:\\msys64\\mingw32\\bin\\i686-w64-mingw32-g++.exe" \
-    -DLIBUSB_LIBRARIES="C:\\libusb-mingw\\MinGW32\\static\\libusb-1.0.a" \
-    -DLIBUSB_INCLUDE_DIRS="C:\\libusb-mingw\\include\\libusb-1.0" \
-    -DBoost_USE_STATIC_LIBS=ON \
-    -DBUILD_STATIC_LIB=OFF \
-    -DBUILD_EXAMPLES=OFF \
-    -DBUILD_TESTS=OFF \
-    -DBOOST_ROOT="C:\\Libraries\\boost_1_62_0" \
-    -DBUILD_PYTHON=OFF \
-    ..
-  - mingw32-make -j8
+  - C:\msys64\usr\bin\bash -lc "cmake -G 'Unix Makefiles' -DCMAKE_INSTALL_PREFIX=c:/msys64/mingw32 -DCMAKE_C_COMPILER:FILEPATH=c:/msys64/mingw32/bin/i686-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=c:/msys64/mingw32/bin/i686-w64-mingw32-g++.exe -DLIBUSB_LIBRARIES=c:/libusb-mingw/MinGW32/static/libusb-1.0.a -DLIBUSB_INCLUDE_DIRS=c:/libusb-mingw/include/libusb-1.0 -DBoost_USE_STATIC_LIBS=ON -DBUILD_STATIC_LIB=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBOOST_ROOT=c:/Libraries/boost_1_62_0 -DBUILD_PYTHON=OFF /c/projects/libsmu && make"
+  #- mingw32-make -j8
   
   # create libsmu zipfile
   - mkdir c:\libsmu-MinGW
