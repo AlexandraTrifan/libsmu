@@ -1,7 +1,7 @@
 os: Visual Studio 2015
 clone_depth: 1
-init:
-    - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#init:
+ #   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 environment:
     # Tell msys2 to add mingw64 to the path
@@ -23,8 +23,6 @@ install:
       } Else {
         $env:PYTHON_DEBUG=""
       }
-  - cd C:\projects\libsmu
-  - git checkout rework
   # libusb patched for windows hotplug support
   - git clone https://github.com/analogdevicesinc/libusb.git "C:\libusb"
   # install innosetup for creating installers
@@ -144,39 +142,97 @@ build_script:
   #- appveyor PushArtifact C:\libsmu-setup-x86.exe
   #- appveyor PushArtifact C:\libsmu-setup-x64.exe
 
-
   # MinGW build
-  - ps: (new-object System.Net.WebClient).Downloadfile("http://swdownloads.analog.com/cse/build/libusb-1.0-hp.7z", "c:\libusb.7z")
-  - 7z x -y "c:\libusb.7z" -o"C:\libusb-mingw" > nul
   - set OPT_PATH=C:\msys64\mingw32\bin;C:\msys64\mingw64\bin;
   - set PATH=%OPT_PATH%%PATH%
   - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syu"
+  
+  # Install MinGW dependencies for 64 bit
   - C:\msys64\usr\bin\bash -lc "pacman -Rs --noconfirm mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-fortran mingw-w64-i686-gcc-libgfortran mingw-w64-i686-gcc-objc"
   - C:\msys64\usr\bin\bash -lc "rm /mingw32/etc/gdbinit"
-  - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Sy  mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-pkg-config"
+  - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Sy mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-pkg-config mingw-w64-i686-python2-pip mingw-w64-i686-openblas mingw-w64-i686-lapack"
+  # Install MinGW dependencies for 64 bit
+  #- C:\msys64\usr\bin\bash -lc "pacman -Rs --noconfirm mingw-w64-x86_64-gcc-ada mingw-w64-x86_64-gcc-fortran mingw-w64-x86_64-gcc-libgfortran mingw-w64-x86_64-gcc-objc"
+  #- C:\msys64\usr\bin\bash -lc "rm /mingw64/etc/gdbinit"
+  #- C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Sy mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-pkg-config mingw-w64-x86_64-python2-pip"
 
+  # Get libusb hotplug for 32 bit and compile it for 64 bit
+  - ps: (new-object System.Net.WebClient).Downloadfile("http://swdownloads.analog.com/cse/build/libusb-1.0-hp.7z", "c:\libusb.7z")
+  - 7z x -y "c:\libusb.7z" -o"C:\libusb-mingw" > nul
+  #- git clone --branch=hotplug https://github.com/analogdevicesinc/libusb.git "C:\libusb-mingw64"
+  #- C:\msys64\usr\bin\bash -lc "cd C:/libusb-mingw64 && ./autogen.sh && ./configure --prefix=/mingw64 --build=x86_64-w64-mingw32 --host=x86_64-w64-mingw32 && make -j4"
+
+  # Build libsmu MinGW 32 bit
+  - echo "Running cmake for MinGW 32..."
   - mkdir c:\projects\libsmu\mingw-32
-  - cd c:\projects\libsmu\mingw-32
-  - C:\msys64\usr\bin\bash -lc "cmake -G 'Unix Makefiles' -DCMAKE_CURRENT_BINARY_DIR=c/projects/libsmu/mingw-32 -DCMAKE_INSTALL_PREFIX=/mingw32 -DCMAKE_C_COMPILER:FILEPATH=/mingw32/bin/i686-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=/mingw32/bin/i686-w64-mingw32-g++.exe -DLIBUSB_LIBRARIES=c:/libusb-mingw/MinGW32/static/libusb-1.0.a -DLIBUSB_INCLUDE_DIRS=c:/libusb-mingw/include/libusb-1.0 -DBoost_USE_STATIC_LIBS=ON -DBUILD_STATIC_LIB=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBOOST_ROOT=c:/Libraries/boost_1_62_0 -DBUILD_PYTHON=OFF /c/projects/libsmu"
-  - cd C:\msys64\home\appveyor
-  - C:\msys64\usr\bin\bash -lc "make"
-  #- mingw32-make -j8
+  - C:\msys64\usr\bin\bash -lc "cd C:/projects/libsmu/mingw-32 && cmake -G 'Unix Makefiles' -DCMAKE_INSTALL_PREFIX=/mingw32 -DCMAKE_C_COMPILER:FILEPATH=/mingw32/bin/i686-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=/mingw32/bin/i686-w64-mingw32-g++.exe -DLIBUSB_LIBRARIES=C:/libusb-mingw/MinGW32/static/libusb-1.0.a -DLIBUSB_INCLUDE_DIRS=C:/libusb-mingw/include/libusb-1.0 -DBoost_USE_STATIC_LIBS=ON -DBUILD_STATIC_LIB=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBOOST_ROOT=C:/Libraries/boost_1_62_0 -DBUILD_PYTHON=OFF .. && cmake --build . --config %CONFIGURATION%"
   
-  # create libsmu zipfile
-  - mkdir c:\libsmu-MinGW
-  - mkdir c:\libsmu-MinGW\drivers
-  - mkdir c:\libsmu-MinGW\32
-  - copy ..\src\libsmu.hpp c:\libsmu-MinGW
-  - copy ..\dist\m1k-winusb.inf c:\libsmu-MinGW\drivers
-  - copy ..\dist\m1k-winusbx86.cat c:\libsmu-MinGW\drivers
-  - copy ..\mingw-32\src\libsmu.* c:\libsmu-MinGW\32
-  - copy ..\mingw-32\src\cli\smu.exe c:\libsmu-MinGW\32
-  - copy c:\libusb-mingw\MinGW32\static\libusb-1.0.a c:\libsmu-MinGW\32
-  - 7z a "c:\libsmu-MinGW.zip" c:\libsmu-MinGW
-  - appveyor PushArtifact c:\libsmu-MinGW.zip
+  # Build libsmu MinGW 64 bit
+  #- echo "Running cmake for MinGW 64..."
+  #- mkdir c:\projects\libsmu\mingw-64
+  #- C:\msys64\usr\bin\bash -lc "cd C:/projects/libsmu/mingw-64 && cmake -G 'Unix Makefiles' -DCMAKE_INSTALL_PREFIX=/mingw64 -DCMAKE_C_COMPILER:FILEPATH=/mingw64/bin/x86_64-w64-mingw32-gcc.exe -DCMAKE_CXX_COMPILER:FILEPATH=/mingw64/bin/x86_64-w64-mingw32-g++.exe -DLIBUSB_LIBRARIES=C:/libusb-mingw64/libusb/.libs/libusb-1.0.a -DLIBUSB_INCLUDE_DIRS=C:/libusb-mingw64/libusb -DBoost_USE_STATIC_LIBS=ON -DBUILD_STATIC_LIB=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBOOST_ROOT=C:/Libraries/boost_1_62_0 -DBUILD_PYTHON=OFF .. && cmake --build . --config %CONFIGURATION%"
+  
+  # Create libsmu zip artifact for 32 bit
+  - mkdir c:\libsmu-MinGW-win32
+  - mkdir c:\libsmu-MinGW-win32\drivers
+  - copy c:\projects\libsmu\include\libsmu\libsmu.hpp c:\libsmu-MinGW-win32
+  - copy c:\projects\libsmu\dist\m1k-winusb.inf c:\libsmu-MinGW-win32\drivers
+  - copy c:\projects\libsmu\dist\m1k-winusbx86.cat c:\libsmu-MinGW-win32\drivers
+  - copy c:\projects\libsmu\mingw-32\src\libsmu.* c:\libsmu-MinGW-win32
+  - copy c:\projects\libsmu\mingw-32\src\cli\smu.exe c:\libsmu-MinGW-win32
+  - copy c:\libusb-mingw\MinGW32\static\libusb-1.0.a c:\libsmu-MinGW-win32
+  - C:\msys64\usr\bin\bash -lc "cd c:/msys64/mingw32/bin ; cp -r libwinpthread-*.dll libgcc_*.dll libstdc++-*.dll libgomp-*.dll c:/libsmu-MinGW-win32"
+  - 7z a "c:\libsmu-MinGW-win32.zip" c:\libsmu-MinGW-win32
+  - appveyor PushArtifact c:\libsmu-MinGW-win32.zip
+  
+  # Create libsmu zip artifact for 64 bit
+  - mkdir c:\libsmu-MinGW-win64
+  - mkdir c:\libsmu-MinGW-win64\drivers
+  #- copy c:\projects\libsmu\include\libsmu\libsmu.hpp c:\libsmu-MinGW-win64
+  #- copy c:\projects\libsmu\dist\m1k-winusb.inf c:\libsmu-MinGW-win64\drivers
+  #- copy c:\projects\libsmu\dist\m1k-winusbx64.cat c:\libsmu-MinGW-win64\drivers
+  #- copy c:\projects\libsmu\mingw-64\src\libsmu.* c:\libsmu-MinGW-win64
+  #- copy c:\projects\libsmu\mingw-64\src\cli\smu.exe c:\libsmu-MinGW-win64
+  #- copy c:\libusb-mingw64\libusb\.libs\libusb-1.0.a c:\libsmu-MinGW-win64
+  #- C:\msys64\usr\bin\bash -lc "cd c:/msys64/mingw64/bin ; cp -r libwinpthread-*.dll libgcc_*.dll libstdc++-*.dll libgomp-*.dll c:/libsmu-MinGW-win64"
+  #- 7z a "c:\libsmu-MinGW-win64.zip" c:\libsmu-MinGW-win64
+  #- appveyor PushArtifact c:\libsmu-MinGW-win64.zip
+  
+  ## build 32 bit python bindings
+  # update pip to keep it from complaining
+  - set HOME = C:\projects\libsmu\bindings\python
+  - "pip install --disable-pip-version-check --user --upgrade pip"
+  # wheel needs to be installed in order to build binary wheels for pysmu
+  - "pip install wheel"
+  - "pip install --upgrade cython"
+  
+  # build python dist files
+  - cd C:\projects\libsmu\bindings\python
+  - "python --version"
+  - "python setup.py build_ext %PYTHON_DEBUG% --compiler=mingw32 -L C:\\projects\\libsmu\\mingw-32\\src -I C:\\libusb-mingw\\include\\libusb-1.0"
+  - "python setup.py build %PYTHON_DEBUG% --compiler=mingw32"
+  - "python setup.py bdist_wheel --skip-build"
+  - "python setup.py bdist --skip-build --format zip"
+  
+  ## build 64 bit python bindings
+  # update pip to keep it from complaining
+  - "pip install --disable-pip-version-check --user --upgrade pip"
+  # wheel needs to be installed in order to build binary wheels for pysmu
+  - "pip install wheel"
+  - "pip install --upgrade cython"
+  
+  - "python setup.py build_ext %PYTHON_DEBUG% --compiler=mingw64 -L C:\\projects\\libsmu\\mingw-64\\src -I C:\\libusb-mingw64\\libusb"
+  - "python setup.py build %PYTHON_DEBUG% --compiler=mingw64"
+  - "python setup.py bdist_wheel --skip-build"
+  - pwd
+  - "python setup.py bdist --skip-build --format zip"
+  - "python setup.py sdist"
+
+  # push all dist files as artifacts
+  - ps: Get-ChildItem dist/.\* | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 cache:
   # cache innosetup download
   - C:\Users\appveyor\AppData\Local\Temp\chocolatey
-on_finish:
-    - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#on_finish:
+ #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
