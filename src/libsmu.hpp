@@ -13,6 +13,7 @@
 #include <set>
 #include <memory>
 #include <mutex>
+#include <functional>
 #include <condition_variable>
 #include <thread>
 #include <cmath>
