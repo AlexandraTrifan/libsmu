@@ -96,7 +96,7 @@ deploy:
       - "${RELEASE_PKG_FILE_TGZ}"
     skip_cleanup: true
     on:
-      repo: analogdevicesinc/libsmu
+      repo: AlexandraTrifan/libsmu
       tags: true
       condition: "($TRAVIS_OS_NAME = linux)"
   - provider: releases
@@ -107,6 +107,6 @@ deploy:
       - "${RELEASE_PKG_FILE_TGZ}"
     skip_cleanup: true
     on:
-      repo: analogdevicesinc/libsmu
+      repo: AlexandraTrifan/libsmu
       tags: true
       condition: "$TRAVIS_OS_NAME = osx"
