@@ -387,6 +387,11 @@ Device* Session::probe_device(libusb_device* usb_dev)
 		 *		Check this when newer libusb versions are released.
 		 */
 
+
+		uint8_t addr = libusb_get_device_address(usb_dev);
+		uint8_t bus = libusb_get_bus_number(usb_dev);
+		std::pair<uint8_t, uint8_t> usb_id_addr(bus, addr);
+
 		int open_errorcode = libusb_open(usb_dev, &usb_handle);
 
 		// probably lacking permission to open the underlying usb device
@@ -395,6 +400,13 @@ Device* Session::probe_device(libusb_device* usb_dev)
 				return NULL;
 			} else {
 				usb_handle = m_deviceHandles[usb_dev];
+			}
+		}
+
+		for (auto d : m_devices) {
+			if ((d->m_usb_addr.first == usb_id_addr.first) &&
+				(d->m_usb_addr.second == usb_id_addr.second)) {
+				return d;
 			}
 		}
 
@@ -416,6 +428,7 @@ Device* Session::probe_device(libusb_device* usb_dev)
 			return NULL;
 
 		dev = new M1000_Device(this, usb_dev, usb_handle, hwver, fwver, serial);
+		dev->set_usb_device_addr(usb_id_addr);
 		dev->read_calibration();
 		return dev;
 	}
@@ -447,7 +460,8 @@ int Session::add(Device* device)
 		{
 			for (auto it : m_devices)
 			{
-				if (it->m_serial.compare(device->m_serial) == 0)
+				if ((it->m_usb_addr.first == device->m_usb_addr.first) &&
+					(it->m_usb_addr.second == device->m_usb_addr.second))
 				{
 					m_devices.erase(it);
 					break;

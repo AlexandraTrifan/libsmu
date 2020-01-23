@@ -161,6 +161,7 @@ int M1000_Device::read_calibration()
 
 	if (ret > 0)
 		ret = 0;
+
 	return ret;
 }
 
@@ -1163,4 +1164,9 @@ int M1000_Device::set_adc_mux(unsigned adc_mux){
 	}
 
 	return 0;
+}
+
+void M1000_Device::set_usb_device_addr(std::pair<uint8_t, uint8_t> addr)
+{
+	m_usb_addr = addr;
 }
